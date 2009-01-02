@@ -3,19 +3,30 @@ class Vlad::Git
   set :source, Vlad::Git.new
   set :git_cmd, "git"
 
+  ## 
+  # Sets up a repository on the remote server to fetch changes to and
+  # to deploy new releases from
+  
+  def setup
+    ["cd #{scm_path}",
+     "#{git_cmd} clone #{repository} repo"].join(" && ")
+  end
+  
   ##
   # Returns the command that will check out +revision+ from the
-  # repository into directory +destination+.  +revision+ can be any
-  # SHA1 or equivalent (e.g. branch, tag, etc...)
+  # repository. +revision+ can be any SHA1 or equivalent 
+  # (e.g. branch, tag, etc...)
 
-  def checkout(revision, destination)
-    destination = 'repo' if destination == '.'
+  def checkout(revision, whatever)
     revision = 'HEAD' if revision =~ /head/i
-
-    [ "rm -rf #{destination}",
-      "#{git_cmd} clone #{repository} #{destination}",
-      "cd #{destination}",
-      "#{git_cmd} checkout -f -b deployed-#{revision} #{revision}"
+    
+    ["cd #{scm_path}/repo",
+     "#{git_cmd} checkout -f master",
+     "#{git_cmd} pull",
+     "#{git_cmd} branch -D deployed-#{revision}",
+     "#{git_cmd} checkout -f -b deployed-#{revision} #{revision}",
+     "#{git_cmd} submodule init",
+     "#{git_cmd} submodule update"
     ].join(" && ")
   end
 
@@ -26,18 +37,20 @@ class Vlad::Git
   def export(revision, destination)
     revision = 'HEAD' if revision == "."
 
-    [ "mkdir -p #{destination}",
-      "#{git_cmd} archive #{revision} | (cd #{destination} && tar xf -)"
+    ["mkdir -p #{destination}",
+     "cp -r #{scm_path}/repo/* #{destination}/",
+     "cd #{destination} && find . -name '.git' -type d -delete"
     ].join(" && ")
   end
-
-  ##
-  # Returns a command that maps human-friendly revision identifier +revision+
-  # into a git SHA1.
-
-  def revision(revision)
-    revision = 'HEAD' if revision =~ /head/i
-
-    "`#{git_cmd} rev-parse #{revision}`"
+  
+  def self.setup_rake_tasks
+    desc "Sets up a Git clone to deploy from on the remote host"
+    remote_task 'vlad:setup:git', :roles => :app do
+      run source.setup
+    end
+    
+    task('vlad:setup') { Rake::Task['vlad:setup:git'].invoke }
   end
+  
+  setup_rake_tasks
 end
