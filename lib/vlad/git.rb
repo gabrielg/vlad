@@ -21,10 +21,9 @@ class Vlad::Git
     revision = 'HEAD' if revision =~ /head/i
     
     ["cd #{scm_path}/repo",
-     "#{git_cmd} checkout -f master",
-     "#{git_cmd} pull",
-     "#{git_cmd} branch -D deployed-#{revision}",
-     "#{git_cmd} checkout -f -b deployed-#{revision} #{revision}",
+     "#{git_cmd} fetch",
+     "#{git_cmd} fetch --tags",
+     "#{git_cmd} checkout -f #{revision}",
      "#{git_cmd} submodule init",
      "#{git_cmd} submodule update"
     ].join(" && ")

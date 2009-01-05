@@ -30,24 +30,24 @@ class TestVladGit < VladTestCase
     assert_match "git checkout -f master", cmd  
   end
     
-  def test_checkout_should_pull
+  def test_checkout_should_fetch
     cmd = @scm.checkout('master', '.')
-    assert_match "git pull", cmd
+    assert_match "git fetch", cmd
   end
   
-  def test_checkout_should_set_up_a_new_branch_at_the_specified_revision
+  def test_checkout_should_fetch_tags
     cmd = @scm.checkout('master', '.')
-    assert_match "git checkout -f -b deployed-master master", cmd
+    assert_match "git fetch --tags", cmd
   end
   
-  def test_checkout_should_destroy_existing_deployed_rev_branch
+  def test_checkout_should_checkout_the_specified_revision
     cmd = @scm.checkout('master', '.')
-    assert_match "git branch -D deployed-master", cmd
+    assert_match "git checkout -f master", cmd
   end
   
   def test_checkout_should_rename_head_to_HEAD
     cmd = @scm.checkout('head', '.')
-    assert_match "git checkout -f -b deployed-HEAD HEAD", cmd
+    assert_match "git checkout -f HEAD", cmd
   end
   
   def test_checkout_should_init_submodules
