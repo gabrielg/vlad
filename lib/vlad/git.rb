@@ -38,7 +38,7 @@ class Vlad::Git
 
     ["mkdir -p #{destination}",
      "cp -r #{scm_path}/repo/* #{destination}/",
-     "cd #{destination} && find . -name '.git' -type d -delete"
+     "cd #{scm_path}/repo && find . | grep -v '/.git' | cpio -p --make-directories #{destination}"
     ].join(" && ")
   end
   

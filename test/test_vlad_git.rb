@@ -70,9 +70,9 @@ class TestVladGit < VladTestCase
     assert_match "cp -r foo/scm/repo/* the/release/path/", cmd
   end
       
-  def test_export_removes_all_dot_git_directories
+  def test_export_copies_without_git_files
     cmd = @scm.export 'master', 'the/release/path'
-    assert_match "cd the/release/path && find . -name '.git' -type d -delete", cmd
+    assert_match "cd foo/scm/repo && find . | grep -v '/.git' | cpio -p --make-directories the/release/path", cmd
   end
 
 end
