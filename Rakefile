@@ -5,7 +5,7 @@ require 'hoe'
 $: << 'lib'
 require 'vlad'
 
-Hoe.new('vlad', Vlad::VERSION) do |vlad|
+hoe = Hoe.new('vlad', Vlad::VERSION) do |vlad|
   vlad.rubyforge_name = 'hitsquad'
 
   vlad.developer('Ryan Davis', 'ryand-ruby@zenspider.com')
@@ -16,6 +16,12 @@ Hoe.new('vlad', Vlad::VERSION) do |vlad|
   vlad.extra_deps << 'open4'
 
   vlad.multiruby_skip << "1.9" << "rubinius"
+
+end
+
+
+task :gemspec do
+  File.open("#{hoe.name}.gemspec", "w") {|f| f << hoe.spec.to_ruby }
 end
 
 desc "quick little hack to see what the state of the nation looks like"
