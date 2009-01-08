@@ -37,7 +37,6 @@ class Vlad::Git
     revision = 'HEAD' if revision == "."
 
     ["mkdir -p #{destination}",
-     "cp -r #{scm_path}/repo/* #{destination}/",
      "cd #{scm_path}/repo && find . | grep -v '/.git' | cpio -p --make-directories #{destination}"
     ].join(" && ")
   end
